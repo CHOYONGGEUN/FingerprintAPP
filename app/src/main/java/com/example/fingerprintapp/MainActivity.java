@@ -2,6 +2,8 @@ package com.example.fingerprintapp;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
+import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -27,35 +29,29 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private boolean isIrisBlurringOn = true;
+    private boolean isFingerprintBlurringOn = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /**
-         * 가로 슬라이드 뷰 Fragment
-         */
-
-        //ViewPager2
+        // ViewPager2
         mPager = findViewById(R.id.viewpager);
-        //Adapter
+        // Adapter
         pagerAdapter = new MyAdapter(this, num_page);
         mPager.setAdapter(pagerAdapter);
-        //Indicator
+        // Indicator
         mIndicator = findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
         mIndicator.createIndicators(num_page, 0);
-        //ViewPager Setting
+        // ViewPager Setting
         mPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
 
-        /**
-         * 이 부분 조정하여 처음 시작하는 이미지 설정.
-         * 2000장 생성하였으니 현재위치 1002로 설정하여
-         * 좌 우로 슬라이딩 할 수 있게 함. 거의 무한대로
-         */
-
-        mPager.setCurrentItem(1000); // 시작 지점
-        mPager.setOffscreenPageLimit(4); // 최대 이미지 수
+        // Initial page setup
+        mPager.setCurrentItem(1000); // Start point
+        mPager.setOffscreenPageLimit(4); // Max image count
 
         mPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -75,6 +71,28 @@ public class MainActivity extends AppCompatActivity {
 
         // Start the auto-slide
         slideHandler.postDelayed(slideRunnable, 3000);
+
+        // Setup buttons
+        Button buttonIris = findViewById(R.id.button4);
+        Button buttonFingerprint = findViewById(R.id.button3);
+
+        buttonIris.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isIrisBlurringOn = !isIrisBlurringOn;
+                buttonIris.setText(isIrisBlurringOn ? "홍채 블러링 ON" : "홍채 블러링 OFF");
+                buttonIris.setBackgroundResource(isIrisBlurringOn ? R.drawable.rounded_button_blue : R.drawable.rounded_button_grey);
+            }
+        });
+
+        buttonFingerprint.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isFingerprintBlurringOn = !isFingerprintBlurringOn;
+                buttonFingerprint.setText(isFingerprintBlurringOn ? "지문 블러링 ON" : "지문 블러링 OFF");
+                buttonFingerprint.setBackgroundResource(isFingerprintBlurringOn ? R.drawable.rounded_button_blue : R.drawable.rounded_button_grey);
+            }
+        });
     }
 
     @Override

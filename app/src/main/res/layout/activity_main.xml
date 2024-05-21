@@ -53,8 +53,8 @@
             android:layout_height="120dp"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="60dp"
-            android:background="@drawable/rounded_button"
-            android:text="지문 블러링 OFF"
+            android:background="@drawable/rounded_button_blue"
+            android:text="지문 블러링 ON"
             android:textColor="#FBF7F7"
             android:textSize="20sp"/>
     </RelativeLayout>
