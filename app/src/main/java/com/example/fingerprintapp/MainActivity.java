@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -13,10 +14,14 @@ import me.relex.circleindicator.CircleIndicator3;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
+
     private ViewPager2 mPager;
     private FragmentStateAdapter pagerAdapter;
     private int num_page = 4;
     private CircleIndicator3 mIndicator;
+    private ImageView beforeImageView;
+    private ImageView afterImageView;
 
     private Handler slideHandler = new Handler();
     private Runnable slideRunnable = new Runnable() {
@@ -25,11 +30,11 @@ public class MainActivity extends AppCompatActivity {
             int currentItem = mPager.getCurrentItem();
             int nextItem = currentItem + 1;
             mPager.setCurrentItem(nextItem);
-            slideHandler.postDelayed(this, 3000); // Schedule the next slide after 3 seconds
+            slideHandler.postDelayed(this, 3000); // 3초 후에 다음 슬라이드 예약
         }
     };
 
-    private boolean isIrisBlurringOn = true;
+    private boolean isIrisBlurringOn = false; // 기본값을 false로 설정
     private boolean isFingerprintBlurringOn = false;
 
     @Override
@@ -37,21 +42,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // ViewPager2
+        // ViewPager2 설정
         mPager = findViewById(R.id.viewpager);
-        // Adapter
         pagerAdapter = new MyAdapter(this, num_page);
         mPager.setAdapter(pagerAdapter);
-        // Indicator
+
+        // Indicator 설정
         mIndicator = findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
         mIndicator.createIndicators(num_page, 0);
-        // ViewPager Setting
         mPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
 
-        // Initial page setup
-        mPager.setCurrentItem(1000); // Start point
-        mPager.setOffscreenPageLimit(4); // Max image count
+        // 초기 페이지 설정
+        mPager.setCurrentItem(1000);
+        mPager.setOffscreenPageLimit(4);
 
         mPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -69,10 +73,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Start the auto-slide
+        // 자동 슬라이드 시작
         slideHandler.postDelayed(slideRunnable, 3000);
 
-        // Setup buttons
+        // 이미지 뷰 설정
+        beforeImageView = findViewById(R.id.beforeImage);
+        afterImageView = findViewById(R.id.afterImage);
+
+        // 버튼 설정
         Button buttonIris = findViewById(R.id.button4);
         Button buttonFingerprint = findViewById(R.id.button3);
 
@@ -82,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
                 isIrisBlurringOn = !isIrisBlurringOn;
                 buttonIris.setText(isIrisBlurringOn ? "홍채 블러링 ON" : "홍채 블러링 OFF");
                 buttonIris.setBackgroundResource(isIrisBlurringOn ? R.drawable.rounded_button_blue : R.drawable.rounded_button_grey);
+                updateAfterImage();
             }
         });
 
@@ -91,14 +100,26 @@ public class MainActivity extends AppCompatActivity {
                 isFingerprintBlurringOn = !isFingerprintBlurringOn;
                 buttonFingerprint.setText(isFingerprintBlurringOn ? "지문 블러링 ON" : "지문 블러링 OFF");
                 buttonFingerprint.setBackgroundResource(isFingerprintBlurringOn ? R.drawable.rounded_button_blue : R.drawable.rounded_button_grey);
+                updateAfterImage();
             }
         });
+
+        // 초기 상태 기반으로 afterImageView 설정
+        updateAfterImage();
+    }
+
+    private void updateAfterImage() {
+        if (isIrisBlurringOn || isFingerprintBlurringOn) {
+            afterImageView.setImageResource(R.drawable.blind);
+        } else {
+            afterImageView.setImageResource(R.drawable.people);
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Remove callbacks to avoid memory leaks
+        // 메모리 누수를 방지하기 위해 콜백 제거
         slideHandler.removeCallbacks(slideRunnable);
     }
 }
